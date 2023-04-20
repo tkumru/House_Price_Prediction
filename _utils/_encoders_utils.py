@@ -1,9 +1,7 @@
 from pyspark.sql import functions as F
 from sklearn.preprocessing import LabelEncoder
-import pandas as pd
-import numpy as np
 
-from logging_utils import setup_logger
+from _utils.logging_utils import setup_logger
 
 ##################################################
 # Rare Encoding
@@ -44,8 +42,12 @@ def rare_encoder(df, columns: list, rare_percent: float):
 ##################################################
 
 def label_encoder(df, binary_cols: list):
+    logger = setup_logger()
+    logger.debug("label_encoder function is executing...")
+    
     encoder = LabelEncoder()
     for col in binary_cols:
+        logger.info(f"{col} column is encoding...")
         df[col] = encoder.fit_transform(df[col])
     
     return df

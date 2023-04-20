@@ -1,5 +1,5 @@
-from pyspark.sql import SparkSession, functions as F
-from logging_utils import setup_logger
+from pyspark.sql import functions as F
+from _utils.logging_utils import setup_logger
 
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -8,7 +8,7 @@ import numpy as np
 import json
 
 
-def seperate_columns(spark: SparkSession, dtypes:list) -> tuple:
+def seperate_columns(dtypes:list) -> tuple:
     logger = setup_logger("Seperate Columns to Variable Types")
     logger.debug("seperate_columns function executing...")
     
@@ -160,7 +160,8 @@ def check_missing_values(df, save:bool=0):
     def null_count(df, col):
         return df.select(col).filter((F.col(col) == "NA") |
                                 (F.col(col) == "") |
-                                (F.col(col).isNull())).count()
+                                (F.col(col).isNull()) | 
+                                (F.col(col) == "None")).count()
     
     misses = {}
     for index, col in enumerate(df.columns):
@@ -177,6 +178,8 @@ def check_missing_values(df, save:bool=0):
     if save:
         with open('missing_values.json', 'w') as file:
             json.dump(misses, file)
+            
+    return misses
             
 
 def get_null_summary(df: pd.DataFrame, plot: bool=0):

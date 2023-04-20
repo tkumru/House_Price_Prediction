@@ -24,11 +24,12 @@ def replace_with_thresholds(df, col: str,
 ##################################################
 
 class LocalOutliers:
-    def __init__(self, df, numerical_cols: list):
-        self.df = df
-        self.df = df.toPandas()
-        
+    def __init__(self, df, numerical_cols: list,
+                 df_type: str='spark'):
+        self.df = df  
         self.numerical_cols = numerical_cols
+        
+        if df_type == 'spark': self.df = df.toPandas()
         
     def init_model(self):
         neigh_count = int(self.df.shape[0] * (1 / 100))
@@ -47,10 +48,10 @@ class LocalOutliers:
         
         plt.show()
         
-    def get_local_outliers_df(self, threshold: int):
+    def get_local_outliers_df(self, threshold: float):
         threshold = np.sort(self.scores)[threshold]
         
-        local_outlier_df = self.df[(self.scores < threshold)][self.numerical_cols]
-        non_local_outlier_df = self.df[~(self.scores < threshold)][self.numerical_cols]
+        local_outlier_df = self.df[(self.scores < threshold)]
+        non_local_outlier_df = self.df[~(self.scores < threshold)]
         
         return local_outlier_df, non_local_outlier_df
